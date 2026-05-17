@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✈️ AMER 🚘ON🛩️THE🚘ROAD🛫</title>
+
+<link rel="icon" href="/favicon.ico">
+
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Tahoma
+}
+
+body{
+    background:linear-gradient(to bottom,#050505,#111827);
+    color:#fff;
+    min-height:100vh;
+}
+
+/* ===== العنوان المتحرك ===== */
+.title-wrapper{
+overflow:hidden;
+width:100%;
+background:#000;
+border-top:2px solid #d4af37;
+border-bottom:2px solid #d4af37;
+}
+
+.scroll-track{
+display:flex;
+gap:100px;
+animation:scrollLoop 12s linear infinite;
+}
+
+.lux-title{
+white-space:nowrap;
+font-size:37px;
+font-weight:bold;
+background:linear-gradient(90deg,#8b6914,#d4af37,#fff1a8,#d4af37,#8b6914);
+background-size:300%;
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+animation:goldShine 4s linear infinite;
+
+}
+
+@keyframes scrollLoop{
+0%{transform:translateX(0)}
+100%{transform:translateX(-50%)}
+
+}
+
+@keyframes goldShine{
+0%{background-position:0%}
+100%{background-position:300%}
+
+}
+.scroll-track:hover{
+    animation-play-state:paused;
+}
+
+header{
+    background:rgba(0,0,0,.9);
+    padding:18px;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow:0 4px 25px rgba(212,175,55,.35);
+}
+
+.lang-btn{
+    position:absolute;
+    left:15px;
+    top:15px;
+    background:linear-gradient(135deg,#8b6914,#d4af37,#fff1a8);
+    color:#111;
+    padding:8px 14px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.hero{
+    min-height:85vh;
+
+    position:relative;
+    overflow:hidden;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+    linear-gradient(
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.7)
+    ),
+
+    url('https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2')
+    center/cover;
+}
+
+.overlay{
+    background:rgba(0,0,0,.45);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+
+    height:100%;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+    padding:20px;
+}
+
+#heroBtn{
+    margin-top:15px;
+    padding:12px 22px;
+    border:none;
+    border-radius:14px;
+    background:#d4af37;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+    padding-bottom:110px;
+}
+
+.gold-box{
+    background:linear-gradient(180deg,#000,#111);
+    border:2px solid #d4af37;
+    box-shadow:0 0 18px rgba(212,175,55,.45);
+    border-radius:22px;
+    padding:18px;
+    margin-bottom:20px;
+}
+
+.gold-box h3,
+.gold-box h4{
+    color:#fff1a8;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.services{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.srv{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(145deg,#8b6914,#d4af37);
+    color:#111;
+    padding:18px;
+    border-radius:20px;
+    text-align:center;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.srv:hover{
+    transform:translateY(-6px) scale(1.03);
+    box-shadow:0 10px 25px rgba(212,175,55,.45);
+}
+
+.srv::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.4),
+    transparent
+    );
+    transform:translateX(-100%);
+    transition:.7s;
+}
+
+.srv:hover::before{
+    transform:translateX(100%);
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:none;
+    border-radius:12px;
+}
+
+button{
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:#d4af37;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+label{
+    display:block;
+    margin-top:12px;
+    color:#fff1a8;
+}
+
+#locationText{
+    text-align:center;
+    color:#fff1a8;
+    margin:10px 0;
+}
+
+.chat-toggle{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    width:65px;
+    height:65px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:50%;
+    font-size:26px;
+    z-index:999;
+    text-decoration:none;
+    background:#d4af37;
+    color:#111;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+}
+
+.submit-order-btn:disabled{
+opacity:.7;
+cursor:not-allowed;
+}
+
+/* ===== Loader ===== */
+
+.loader{
+width:20px;
+height:20px;
+border:3px solid rgba(255,255,255,.3);
+border-top:3px solid #fff;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin:auto;
+}
+
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+
+#chatBadge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    background:red;
+    color:#fff;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    font-size:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+/* ===== Modern Chat ===== */
+
+.chat-box{
+    position:fixed;
+    right:20px;
+    bottom:95px;
+    width:380px;
+    height:600px;
+
+    background:rgba(15,23,42,.96);
+
+    border-radius:30px;
+
+    display:none;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    z-index:9999;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,.55),
+    0 0 25px rgba(212,175,55,.15);
+}
+
+
+.chat-header{
+    background:linear-gradient(
+    135deg,
+    #0f172a,
+    #1e293b
+    );
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    color:#fff;
+    padding:18px;
+    font-size:18px;
+    font-weight:bold;
+
+    border-bottom:
+    1px solid rgba(255,255,255,.08);
+}
+.chat-messages{
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:18px;
+
+    background:
+    linear-gradient(
+    to bottom,
+    #0b1120,
+    #111827
+    );
+}
+
+.chat-messages::-webkit-scrollbar{
+    width:6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb{
+    background:#d4af37;
+    border-radius:20px;
+}
+
+.msg{
+    position:relative;
+
+    padding:14px 16px;
+
+    margin:12px 0;
+
+    border-radius:22px;
+
+    max-width:82%;
+
+    line-height:1.7;
+
+    font-size:15px;
+
+    animation:fadeIn .25s ease;
+
+    box-shadow:
+    0 8px 18px rgba(0,0,0,.18);
+}
+
+.msg{
+
+word-break:break-word;
+
+backdrop-filter:blur(10px);
+
+}
+.client{
+    margin-left:auto;
+
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+    );
+
+    color:#fff;
+
+    border-bottom-right-radius:6px;
+}
+
+.admin{
+    margin-right:auto;
+
+    background:
+    linear-gradient(
+    135deg,
+    #1f2937,
+    #374151
+    );
+
+    color:#fff;
+
+    border-bottom-left-radius:6px;
+}
+
+.msg-time{
+    margin-top:8px;
+
+    font-size:11px;
+
+    opacity:.75;
+
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.chat-actions{
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:14px;
+
+    background:
+    rgba(15,23,42,.95);
+
+    border-top:
+    1px solid rgba(255,255,255,.08);
+}
+
+.chat-actions input{
+    flex:1;
+
+    height:50px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:18px;
+
+    background:#1e293b;
+
+    color:#fff;
+
+    padding:0 16px;
+
+    font-size:15px;
+}
+
+.chat-actions input::placeholder{
+    color:#94a3b8;
+}
+
+.chat-actions button,
+.emoji-btn{
+    width:50px;
+    height:50px;
+
+    border:none;
+
+    border-radius:16px;
+
+    cursor:pointer;
+
+    font-size:20px;
+
+    transition:.25s;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.chat-actions button{
+    background:
+    linear-gradient(
+    135deg,
+    #d4af37,
+    #facc15
+    );
+
+    color:#111;
+}
+
+.chat-actions button:hover,
+.emoji-btn:hover{
+    transform:translateY(-3px) scale(1.05);
+}
+
+.emoji-btn{
+    background:#1e293b;
+    color:#fff;
+}
+
+
+@media(max-width:768px){
+
+.chat-box{
+    right:0;
+    bottom:0;
+    width:100%;
+    height:100%;
+    border-radius:0;
+}
+
+}
+#recordBtn.recording{
+    background:#ef4444;
+    color:#fff;
+}
+
+audio,
+img{
+max-width:100%;
+max-height:250px;
+object-fit:cover;
+border-radius:12px;
+}
+
+.social-fixed{
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    z-index:999;
+}
+
+.social-row{
+    display:flex;
+    gap:10px;
+}
+
+.social-fixed a{
+    width:50px;
+    height:50px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:50%;
+    color:#fff;
+    text-decoration:none;
+    font-size:22px;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+}
+
+.facebook{
+    background:#1877f2;
+}
+
+.instagram{
+    background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
+}
+
+.whatsapp{
+    background:#25D366;
+}
+
+.call-btn{
+    background:#ef4444;
+}
+
+.submit-order-btn{
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%);
+    min-width:100px;
+    padding:10px 18px;
+    border:none;
+    border-radius:14px;
+    background:#d4af37;
+    color:#111;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    z-index:998;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+}
+
+.download-btn{
+    background:#111827;
+    color:#fff;
+    text-decoration:none;
+    padding:8px 12px;
+    border-radius:10px;
+    text-align:center;
+    display:inline-block;
+}
+
+img{max-width:100%;border-radius:10px}
+audio{width:100%}
+
+/* ===== Bottom Navigation ===== */
+
+.bottom-nav{
+
+position:fixed;
+
+bottom:0;
+left:0;
+
+width:100%;
+height:70px;
+
+background:rgba(0,0,0,.92);
+
+backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);
+
+display:none;
+
+justify-content:space-around;
+align-items:center;
+
+z-index:999;
+
+border-top:
+1px solid rgba(255,255,255,.1);
+}
+
+.bottom-nav button{
+
+background:none;
+border:none;
+
+color:#fff;
+
+font-size:26px;
+
+cursor:pointer;
+}
+
+.bottom-nav button:hover{
+
+transform:scale(1.1);
+}
+
+@media(max-width:768px){
+
+.bottom-nav{
+display:flex;
+}
+
+.submit-order-btn{
+bottom:85px;
+}
+
+.social-fixed{
+display:none;
+}
+
+.chat-toggle{
+bottom:90px;
+}
+}
+
+.page-section{
+margin-bottom:30px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:15px;
+}
+
+.upload-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-top:15px;
+}
+
+.upload-card{
+background:#0f172a;
+padding:15px;
+border-radius:18px;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.upload-card label{
+margin-bottom:8px;
+display:block;
+}
+
+.progress-wrap{
+width:100%;
+height:16px;
+background:#222;
+border-radius:30px;
+overflow:hidden;
+border:1px solid #d4af37;
+}
+
+.progress-bar{
+width:33%;
+height:100%;
+background:#facc15;
+transition:.4s;
+}
+
+.order-form{
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+@media(max-width:768px){
+
+.form-grid,
+.upload-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+.main-sections{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.main-card{
+background:
+linear-gradient(145deg,#111827,#1f2937);
+border:2px solid #d4af37;
+border-radius:28px;
+padding:30px 20px;
+text-align:center;
+cursor:pointer;
+transition:.35s;
+box-shadow:
+0 10px 30px rgba(0,0,0,.35);
+}
+
+.main-card:hover{
+transform:translateY(-8px) scale(1.03);
+box-shadow:
+0 15px 35px rgba(212,175,55,.35);
+}
+
+.main-icon{
+font-size:60px;
+margin-bottom:15px;
+}
+
+.main-card h3{
+color:#fff1a8;
+margin-bottom:10px;
+font-size:24px;
+}
+
+.main-card p{
+color:#ccc;
+line-height:1.8;
+}
+
+.section-content{
+display:none;
+animation:fadeSection .35s ease;
+}
+
+.section-content.active{
+display:block;
+}
+
+.upload-grid{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+}
+
+.upload-card{
+background:#0f172a;
+padding:15px;
+border-radius:18px;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.order-form{
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+@keyframes fadeSection{
+from{
+opacity:0;
+transform:translateY(15px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+
+/* ===== Light Theme ===== */
+
+body.light{
+
+background:
+linear-gradient(
+to bottom,
+#f8fafc,
+#e2e8f0
+);
+
+color:#111;
+}
+
+body.light .gold-box{
+
+background:#fff;
+
+color:#111;
+
+border:2px solid #d4af37;
+}
+
+body.light input,
+body.light textarea,
+body.light select{
+
+background:#f1f5f9;
+
+color:#111;
+}
+
+body.light .chat-box{
+
+background:#fff;
+}
+
+body.light .chat-messages{
+
+background:#f8fafc;
+}
+
+body.light .admin{
+
+background:#e5e7eb;
+
+color:#111;
+}
+
+
+/* ===== Emoji Picker ===== */
+
+.emoji-picker{
+position:absolute;
+bottom:75px;
+right:15px;
+
+background:#111827;
+
+border:1px solid rgba(255,255,255,.08);
+
+border-radius:20px;
+
+padding:12px;
+
+display:none;
+
+flex-wrap:wrap;
+
+gap:10px;
+
+width:280px;
+
+max-height:220px;
+
+overflow-y:auto;
+
+z-index:99999;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.45);
+}
+
+.emoji-picker span{
+
+font-size:24px;
+
+cursor:pointer;
+
+transition:.2s;
+
+}
+
+.emoji-picker span:hover{
+
+transform:scale(1.2);
+
+}
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+to{
+opacity:1;
+transform:none;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<audio id="orderSound" preload="auto">
+  <source src="/sounds/order.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="messageSound" preload="auto">
+  <source src="/sounds/message.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="fileSound" preload="auto">
+  <source src="/sounds/file.mp3" type="audio/mpeg">
+</audio>
+
+<div class="title-wrapper">
+    <div class="scroll-track">
+        <span class="lux-title">
+            ✈️ AMER 🚘ON🛩️THE🚘ROAD🛫
+        </span>
+        <span class="lux-title">
+            ✈️ AMER 🚘ON🛩️THE🚘ROAD🛫
+        </span>
+    </div>
+</div>
+
+<div class="chat-toggle" onclick="toggleChat()">
+💬
+<span id="chatBadge">0</span>
+</div>
+
+<header>
+
+<div class="lang-btn"
+onclick="toggleLang()">
+EN
+</div>
+
+<button onclick="toggleTheme()">
+🌙
+</button>
+
+<h2>
+✈️ AMER 🚘ON🛩️THE🚘ROAD🛫
+</h2>
+
+</header>
+
+<section class="hero">
+
+<div class="overlay">
+
+<h1 id="heroTitle">خدمات المساعدة على الطريق</h1>
+
+<p id="heroSub">
+خدمة سريعة وآمنة على مدار الساعة
+</p>
+
+<button id="heroBtn"
+onclick="document.getElementById('phone').scrollIntoView({behavior:'smooth'})">
+اطلب الآن
+</button>
+
+</div>
+
+</section>
+
+<div class="social-fixed">
+
+<div class="social-row">
+<a href="https://www.facebook.com/share/16UbSbE1p9/"
+target="_blank"
+class="facebook">f</a>
+
+<a href="https://www.instagram.com/road.sideassistance24"
+target="_blank"
+class="instagram">📷</a>
+</div>
+
+<div class="social-row">
+
+<a href="tel:+201021259316"
+class="call-btn">📞</a>
+
+<a href="https://wa.me/201021259316"
+target="_blank"
+class="whatsapp">✆</a>
+
+</div>
+
+</div>
+
+<div class="container">
+
+<!-- ===== الأيقونات الرئيسية ===== -->
+
+<div class="main-sections">
+
+<div class="main-card"
+onclick="toggleSection('assistSection')">
+
+<div class="main-icon">🛡️</div>
+
+<h3 id="subscriptionsTitle">
+الاشتراكات والتأمينات
+</h3>
+
+<p id="subscriptionsDesc">
+خدمات المساعدة على الطريق
+</p>
+
+</div>
+
+<div class="main-card"
+onclick="toggleSection('cashSection')">
+
+<div class="main-icon">🔧</div>
+
+<h3 id="cashTitle">
+الصيانة والخدمات الكاش
+</h3>
+
+<p id="cashDesc">
+خدمات فورية ودفع مباشر
+</p>
+
+</div>
+</div>
+
+<!-- ===== القسم الأول ===== -->
+
+<div id="assistSection"
+class="section-content">
+
+<!-- خدمات المساعدة -->
+
+<div class="gold-box">
+
+<h3 id="roadsideServices">
+🛠️ خدمات المساعدة على الطريق
+</h3>
+
+<div class="services" id="servicesBox"></div>
+
+<div id="quickOrderStatus"
+style="
+margin-top:15px;
+text-align:center;
+color:#fff1a8;
+font-weight:bold;
+">
+</div>
+
+</div>
+
+
+<!-- نموذج الطلب -->
+
+<form
+class="order-form"
+onsubmit="sendOrder();return false;">
+
+<div class="gold-box">
+
+<h3>📋 البيانات المطلوبة</h3>
+
+<input
+id="phone"
+required
+placeholder="رقم الهاتف">
+
+<select id="service"></select>
+
+<textarea
+id="problem"
+required
+placeholder="اكتب المشكلة">
+</textarea>
+
+</div>
+
+<!-- صور السيارة -->
+
+<div class="gold-box">
+
+<h3>🚗 صور السيارة</h3>
+
+<div class="upload-grid">
+
+<div class="upload-card">
+
+<label>أمام</label>
+
+<input type="file"
+id="frontImg"
+accept="image/*">
+
+</div>
+
+<div class="upload-card">
+
+<label>خلف</label>
+
+<input type="file"
+id="backImg"
+accept="image/*">
+
+</div>
+
+<div class="upload-card">
+
+<label>يمين</label>
+
+<input type="file"
+id="rightImg"
+accept="image/*">
+
+</div>
+
+<div class="upload-card">
+
+<label>يسار</label>
+
+<input type="file"
+id="leftImg"
+accept="image/*">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- الملكية -->
+
+<div class="gold-box">
+
+<h3>🪪 ملكية السيارة</h3>
+
+<div class="upload-grid">
+
+<div class="upload-card">
+
+<label>أمام</label>
+
+<input type="file"
+id="ownershipFrontImg"
+accept="image/*">
+
+</div>
+
+<div class="upload-card">
+
+<label>خلف</label>
+
+<input type="file"
+id="ownershipBackImg"
+accept="image/*">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- التأمين -->
+
+<div class="gold-box">
+
+<h3>📄 وثيقة التأمين</h3>
+
+<input type="file"
+id="insuranceImg"
+accept="image/*,.pdf">
+
+</div>
+
+<!-- الموقع -->
+
+<div class="gold-box">
+
+<h3>📍 الموقع</h3>
+
+<div id="locationText">
+📍 جاري تحديد الموقع...
+</div>
+
+</div>
+
+<button
+type="submit"
+class="submit-order-btn">
+
+إرسال الطلب
+
+</button>
+
+</form>
+
+</div>
+
+<!-- ===== القسم الثاني ===== -->
+
+<div id="cashSection"
+class="section-content">
+
+
+<!-- خدمات الصيانة -->
+
+<div class="gold-box">
+
+<h3 id="maintenanceServices">
+🔧 خدمات الصيانة والكاش
+</h3>
+
+<select id="cashServiceSelect">
+
+<option>🛢️ تغيير زيت</option>
+
+<option>🔋 تبديل بطارية</option>
+
+<option>🛞 تبديل إطارات</option>
+
+<option>⚙️ فحص كمبيوتر</option>
+
+<option>🚘 صيانة متنقلة</option>
+
+<option>🧰 إصلاح أعطال</option>
+
+<option>❄️ تعبئة مكيف</option>
+
+<option>🧼 غسيل وتلميع</option>
+
+</select>
+
+<button
+id="cashOrderBtn"
+style="
+width:100%;
+margin-top:12px;
+"
+onclick="
+quickServiceOrder(
+document.getElementById('cashServiceSelect').value
+)
+">
+📤 طلب الخدمة
+</button>
+</div>
+
+<!-- الدفع -->
+
+<div class="gold-box">
+
+<h3 id="cashPayment">
+💵 الدفع الكاش
+</h3>
+
+<p id="cashText"
+style="
+text-align:center;
+line-height:2;
+color:#ddd;
+">
+
+يمكنك طلب خدمات الصيانة والدفع مباشرة
+بعد تنفيذ الخدمة.
+
+</p>
+
+</div>
+
+</div>
+</div>
+
+<div class="chat-box" id="chatBox">
+
+<!-- HEADER -->
+<div class="chat-header">
+    💬 خدمة العملاء
+</div>
+
+<!-- ORDER STATUS -->
+<div id="orderStatusBox"
+style="
+padding:12px;
+background:#111827;
+border-bottom:1px solid rgba(255,255,255,.08);
+display:none;
+">
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:8px;
+">
+
+<span>📦 حالة الطلب</span>
+
+<span id="orderStatusText">
+جديد
+</span>
+
+</div>
+
+<div class="progress-wrap">
+
+<div class="progress-bar"
+id="orderProgressBar"
+style="width:33%">
+</div>
+
+</div>
+
+</div><div class="chat-messages" id="chatMessages"></div>
+<div id="typingBox"
+style="
+padding:6px 15px;
+font-size:13px;
+color:#666;
+display:none;
+">
+...
+</div>
+
+<!-- ===== Emoji Picker ===== -->
+
+<div class="emoji-picker" id="emojiPicker">
+
+<span onclick="insertEmoji('😀')">😀</span>
+<span onclick="insertEmoji('😁')">😁</span>
+<span onclick="insertEmoji('😂')">😂</span>
+<span onclick="insertEmoji('🤣')">🤣</span>
+<span onclick="insertEmoji('😊')">😊</span>
+<span onclick="insertEmoji('😍')">😍</span>
+<span onclick="insertEmoji('😘')">😘</span>
+<span onclick="insertEmoji('😎')">😎</span>
+<span onclick="insertEmoji('😭')">😭</span>
+<span onclick="insertEmoji('😡')">😡</span>
+<span onclick="insertEmoji('👍')">👍</span>
+<span onclick="insertEmoji('👎')">👎</span>
+<span onclick="insertEmoji('👏')">👏</span>
+<span onclick="insertEmoji('🙏')">🙏</span>
+<span onclick="insertEmoji('🔥')">🔥</span>
+<span onclick="insertEmoji('❤️')">❤️</span>
+<span onclick="insertEmoji('💔')">💔</span>
+<span onclick="insertEmoji('🎉')">🎉</span>
+<span onclick="insertEmoji('🚗')">🚗</span>
+<span onclick="insertEmoji('🛠️')">🛠️</span>
+<span onclick="insertEmoji('📞')">📞</span>
+
+</div>
+<div class="chat-actions">
+
+<button class="emoji-btn"
+onclick="toggleEmojiPicker()">
+😊
+</button>
+
+<input id="chatInput"
+placeholder="اكتب رسالتك..."
+oninput="sendTyping()">
+
+<button onclick="sendMsg()">➤</button>
+
+<input type="file"
+id="chatFile"
+hidden
+onchange="uploadChatFile()">
+
+<button onclick="
+document.getElementById('chatFile').click()
+">
+📎
+</button>
+
+<button id="recordBtn"
+onclick="toggleRecord()">
+🎤
+</button>
+
+</div>
+<div id="voicePreview"
+style="
+display:none;
+padding:10px;
+border-top:1px solid rgba(255,255,255,.08);
+background:#0f172a;
+">
+
+<audio id="voicePlayer"
+controls
+style="
+width:100%;
+margin-bottom:8px;
+"></audio>
+
+<div style="
+display:flex;
+gap:8px;
+">
+
+<button onclick="sendVoice()"
+style="
+flex:1;
+background:#22c55e;
+color:#fff;
+">
+📤
+</button>
+
+<button onclick="deleteVoice()"
+style="
+width:60px;
+background:#ef4444;
+color:#fff;
+">
+🗑
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const orderStatusBox =
+document.getElementById('orderStatusBox');
+
+const orderStatusText =
+document.getElementById('orderStatusText');
+
+const bar =
+document.getElementById('orderProgressBar');
+
+const chatBadge =
+document.getElementById('chatBadge');
+
+const voicePreview =
+document.getElementById('voicePreview');
+
+const voicePlayer =
+document.getElementById('voicePlayer');
+
+const chatFile =
+document.getElementById('chatFile');
+
+const frontImg =
+document.getElementById('frontImg');
+
+const backImg =
+document.getElementById('backImg');
+
+const rightImg =
+document.getElementById('rightImg');
+
+const leftImg =
+document.getElementById('leftImg');
+
+const ownershipFrontImg =
+document.getElementById('ownershipFrontImg');
+
+const ownershipBackImg =
+document.getElementById('ownershipBackImg');
+
+const insuranceImg =
+document.getElementById('insuranceImg');
+
+const heroTitle = document.getElementById('heroTitle');
+const heroSub = document.getElementById('heroSub');
+const heroBtn = document.getElementById('heroBtn');
+
+const phone = document.getElementById('phone');
+const service = document.getElementById('service');
+const problem = document.getElementById('problem');
+
+const chatBox = document.getElementById('chatBox');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+chatInput.addEventListener('keydown', function(e){
+
+if(e.key === 'Enter' && !e.shiftKey){
+
+e.preventDefault();
+
+sendMsg();
+
+}
+
+});const recordBtn = document.getElementById('recordBtn');
+const typingBox = document.getElementById('typingBox');
+
+const servicesBox = document.getElementById('servicesBox');
+const locationText = document.getElementById('locationText');
+const socket = io();
+
+socket.on('connect', () => {
+
+    console.log('Socket Connected');
+
+    if(orderId){
+
+        socket.emit('joinOrderRoom', {
+            orderId
+        });
+    }
+
+});
+
+socket.on('disconnect', () => {
+
+    console.log('Socket Disconnected');
+
+});
+
+/* ===== الطلب السريع ===== */
+
+socket.on('quickOrderCreated', data => {
+
+    if(!data.success) return;
+
+    orderId = data.order.id;
+
+    localStorage.setItem(
+        'savedOrderId',
+        orderId
+    );
+
+    socket.emit('joinOrderRoom', {
+        orderId
+    });
+
+    appendMessage(
+        'admin',
+        `✅ تم إرسال طلب خدمة:
+${data.order.service}`
+    );
+
+    playSound('orderSound');
+
+    chatBox.style.display = 'flex';
+
+    document.getElementById(
+        'quickOrderStatus'
+    ).innerText =
+    '✅ تم إرسال الطلب بنجاح';
+
+});
+
+
+function playSound(id){
+    const sound = document.getElementById(id);
+
+    if(sound){
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch(()=>{});
+    }
+
+    if (navigator.vibrate) {
+        navigator.vibrate(150);
+    }
+}
+
+let userInteracted = false;
+
+document.addEventListener(
+'touchstart',
+unlockAudio,
+{ once:true }
+);
+
+document.addEventListener(
+'click',
+unlockAudio,
+{ once:true }
+);
+
+function unlockAudio(){
+
+    const sounds = [
+        'orderSound',
+        'messageSound',
+        'fileSound'
+    ];
+
+    sounds.forEach(id=>{
+
+        const s =
+        document.getElementById(id);
+
+        if(s){
+
+            s.play()
+            .then(()=>{
+
+                s.pause();
+                s.currentTime = 0;
+
+            })
+            .catch(()=>{});
+        }
+    });
+}
+
+let orderId = null;
+let mediaRecorder;
+let recordedChunks = [];
+let recordedBlob = null;
+let isRecording = false;
+let currentLang = 'ar';
+let unread = 0;
+const translations = {
+
+ar:{
+
+heroTitle:'خدمات المساعدة على الطريق',
+heroSub:'خدمة سريعة وآمنة على مدار الساعة',
+orderNow:'اطلب الآن',
+
+assistTitle:'الاشتراكات والتأمينات',
+assistSub:'خدمات المساعدة على الطريق',
+
+cashSub:'خدمات فورية ودفع مباشر',
+
+roadServices:'🛠️ خدمات المساعدة على الطريق',
+
+subsTitle:'🛡️ التأمينات والاشتراكات',
+cashTitle:'الصيانة والخدمات الكاش',
+cashPayment:'💵 الدفع الكاش',
+cashText:'يمكنك طلب خدمات الصيانة والدفع مباشرة بعد تنفيذ الخدمة.',
+cashServices:'🔧 خدمات الصيانة والكاش',
+requiredData:'📋 البيانات المطلوبة',
+carImages:'🚗 صور السيارة',
+ownershipTitle:'🪪 ملكية السيارة',
+insuranceTitle:'📄 وثيقة التأمين',
+locationTitle:'📍 الموقع',
+
+comprehensiveInsurance:'📄 تأمين شامل',
+accidentInsurance:'🚘 تأمين ضد الحوادث',
+yearlySubscription:'🪪 اشتراك سنوي',
+vipSubscription:'⚡ اشتراك VIP',
+vehicleTransport:'🚚 اشتراك نقل مركبات',
+emergencyHelp:'🆘 مساعدة طوارئ 24/7',
+
+oilChange:'🛢️ تغيير زيت',
+batteryReplace:'🔋 تبديل بطارية',
+tireReplace:'🛞 تبديل إطارات',
+computerCheck:'⚙️ فحص كمبيوتر',
+mobileMaintenance:'🚘 صيانة متنقلة',
+repairs:'🧰 إصلاح أعطال',
+acFill:'❄️ تعبئة مكيف',
+washPolish:'🧼 غسيل وتلميع',
+
+howToOrder:'📋 طريقة طلب الخدمة',
+
+step1:'1️⃣ اختر الخدمة المناسبة لك',
+step2:'2️⃣ أدخل رقم الهاتف ووصف المشكلة',
+step3:'3️⃣ أرسل الموقع الحالي',
+step4:'4️⃣ سيتم التواصل معك فورًا',
+step5:'5️⃣ الدفع بعد تنفيذ الخدمة',
+
+phone:'رقم الهاتف',
+problem:'اكتب المشكلة',
+
+status:'حالة الطلب:',
+statusNew:'جديد',
+statusProgress:'جاري التنفيذ',
+statusDone:'مكتمل',
+
+carPhotos:'أرسل صور السيارة من 4 جهات',
+ownership:'ارسل ملكية السيارة',
+insurance:'ارسل وثيقة التأمين',
+
+front:'أمام',
+back:'خلف',
+right:'يمين',
+left:'يسار',
+
+sendOrder:'إرسال الطلب',
+
+customerService:'💬 خدمة العملاء',
+
+writeMsg:'اكتب رسالتك...',
+
+locationLoading:'📍 جاري تحديد الموقع...',
+locationError:'📍 تعذر تحديد الموقع',
+
+orderReceived:'✅ تم استلام طلبك',
+
+downloadImage:'⬇ تحميل الصورة',
+downloadAudio:'⬇ تحميل الصوت',
+downloadFile:'📎 ⬇ تحميل الملف'
+
+},
+
+en:{
+
+heroTitle:'Roadside Assistance Services',
+heroSub:'Fast and safe service 24/7',
+orderNow:'Order Now',
+
+assistTitle:'Subscriptions & Insurance',
+assistSub:'Roadside assistance services',
+
+cashSub:'Instant services with direct payment',
+
+roadServices:'🛠️ Roadside Assistance Services',
+
+subsTitle:'🛡️ Insurance & Subscriptions',
+cashTitle:'Maintenance & Cash Services',
+cashPayment:'💵 Cash Payment',
+cashServices:'🔧 Maintenance & Cash Services',
+cashText:'You can request maintenance services and pay directly after completion.',
+
+requiredData:'📋 Required Information',
+carImages:'🚗 Vehicle Images',
+ownershipTitle:'🪪 Vehicle Ownership',
+insuranceTitle:'📄 Insurance Document',
+locationTitle:'📍 Location',
+
+comprehensiveInsurance:'📄 Full Insurance',
+accidentInsurance:'🚘 Accident Insurance',
+yearlySubscription:'🪪 Annual Subscription',
+vipSubscription:'⚡ VIP Subscription',
+vehicleTransport:'🚚 Vehicle Transport Subscription',
+emergencyHelp:'🆘 24/7 Emergency Assistance',
+
+oilChange:'🛢️ Oil Change',
+batteryReplace:'🔋 Battery Replacement',
+tireReplace:'🛞 Tire Replacement',
+computerCheck:'⚙️ Computer Diagnostics',
+mobileMaintenance:'🚘 Mobile Maintenance',
+repairs:'🧰 Repairs',
+acFill:'❄️ AC Refill',
+washPolish:'🧼 Washing & Polishing',
+
+howToOrder:'📋 How To Request Service',
+
+step1:'1️⃣ Choose the service you need',
+step2:'2️⃣ Enter phone number and problem details',
+step3:'3️⃣ Send your current location',
+step4:'4️⃣ Our team will contact you immediately',
+step5:'5️⃣ Pay after service completion',
+
+phone:'Phone Number',
+problem:'Describe the problem',
+
+status:'Order Status:',
+statusNew:'New',
+statusProgress:'In Progress',
+statusDone:'Completed',
+
+carPhotos:'Send 4 Car Photos',
+ownership:'Send Vehicle Ownership',
+insurance:'Send Insurance Document',
+
+front:'Front',
+back:'Back',
+right:'Right',
+left:'Left',
+
+sendOrder:'Send Order',
+
+customerService:'💬 Customer Service',
+
+writeMsg:'Type a message...',
+
+locationLoading:'📍 Detecting location...',
+locationError:'📍 Location unavailable',
+
+orderReceived:'✅ Your request has been received',
+
+downloadImage:'⬇ Download Image',
+downloadAudio:'⬇ Download Audio',
+downloadFile:'📎 ⬇ Download File'
+
+}
+
+};
+
+const services = [
+    { ar:'🚗 سحب المركبة', en:'🚗 Towing' },
+    { ar:'🔋 بطارية', en:'🔋 Battery' },
+    { ar:'🛞 الإطارات', en:'🛞 Tires' },
+    { ar:'⛽ وقود', en:'⛽ Fuel' },
+    { ar:'🔑 فتح السيارة', en:'🔑 Unlock' },
+    { ar:'🆘 إنقاذ', en:'🆘 Rescue' },
+    { ar:'🚚 نقل', en:'🚚 Transport' },
+    { ar:'⚡ شحن', en:'⚡ Charging' }
+];
+
+function t(key){
+
+    return translations[currentLang][key];
+
+}
+
+function applyTranslations(){
+
+document.getElementById('cashOrderBtn').innerText =
+currentLang === 'ar'
+? '📤 طلب الخدمة'
+: '📤 Request Service';
+document.documentElement.lang =
+currentLang;
+
+document.documentElement.dir =
+currentLang === 'ar'
+? 'rtl'
+: 'ltr';
+
+/* ===== زر اللغة ===== */
+
+document.querySelector('.lang-btn').innerText =
+currentLang === 'ar'
+? 'EN'
+: 'AR';
+
+/* ===== العنوان الرئيسي ===== */
+
+heroTitle.innerText =
+t('heroTitle');
+
+heroSub.innerText =
+t('heroSub');
+
+heroBtn.innerText =
+t('orderNow');
+
+/* ===== الكروت الرئيسية ===== */
+
+document.getElementById('subscriptionsTitle').innerText =
+t('assistTitle');
+
+document.getElementById('subscriptionsDesc').innerText =
+t('assistSub');
+
+document.getElementById('cashTitle').innerText =
+t('cashTitle');
+
+document.getElementById('cashDesc').innerText =
+t('cashSub');
+
+/* ===== العناوين ===== */
+
+document.getElementById('roadsideServices').innerText =
+t('roadServices');
+
+
+document.getElementById('maintenanceServices').innerText =
+t('cashServices');
+
+document.getElementById('cashPayment').innerText =
+t('cashPayment');
+
+document.getElementById('cashText').innerText =
+t('cashText');
+
+/* ===== الهيدر ===== */
+
+document.querySelector('.chat-header').innerText =
+t('customerService');
+
+/* ===== الفورم ===== */
+
+document.querySelectorAll('.gold-box h3')[2].innerText =
+t('requiredData');
+
+document.querySelectorAll('.gold-box h3')[3].innerText =
+t('carImages');
+
+document.querySelectorAll('.gold-box h3')[4].innerText =
+t('ownershipTitle');
+
+document.querySelectorAll('.gold-box h3')[5].innerText =
+t('insuranceTitle');
+
+document.querySelectorAll('.gold-box h3')[6].innerText =
+t('locationTitle');
+
+/* ===== placeholders ===== */
+
+phone.placeholder =
+t('phone');
+
+problem.placeholder =
+t('problem');
+
+chatInput.placeholder =
+t('writeMsg');
+
+/* ===== زر الإرسال ===== */
+
+document.querySelector('.submit-order-btn')
+.innerText =
+t('sendOrder');
+
+/* ===== الليبلات ===== */
+
+const labels =
+document.querySelectorAll('label');
+
+if(labels[0]) labels[0].innerText = t('front');
+if(labels[1]) labels[1].innerText = t('back');
+if(labels[2]) labels[2].innerText = t('right');
+if(labels[3]) labels[3].innerText = t('left');
+if(labels[4]) labels[4].innerText = t('front');
+if(labels[5]) labels[5].innerText = t('back');
+
+/* ===== خدمات الكاش ===== */
+
+const cashSelect =
+document.getElementById('cashServiceSelect');
+
+if(cashSelect){
+
+cashSelect.innerHTML = `
+<option>${t('oilChange')}</option>
+<option>${t('batteryReplace')}</option>
+<option>${t('tireReplace')}</option>
+<option>${t('computerCheck')}</option>
+<option>${t('mobileMaintenance')}</option>
+<option>${t('repairs')}</option>
+<option>${t('acFill')}</option>
+<option>${t('washPolish')}</option>
+`;
+
+}
+
+
+/* ===== الموقع ===== */
+
+if(locationText.innerText.includes('جاري') ||
+locationText.innerText.includes('Detecting')){
+
+locationText.innerText =
+t('locationLoading');
+
+}
+
+/* ===== أزرار التنقل السفلي ===== */
+
+const navBtns =
+document.querySelectorAll('.bottom-nav button');
+
+if(navBtns[0])
+navBtns[0].title =
+currentLang === 'ar'
+? 'الرئيسية'
+: 'Home';
+
+if(navBtns[1])
+navBtns[1].title =
+currentLang === 'ar'
+? 'الخدمات'
+: 'Services';
+
+if(navBtns[2])
+navBtns[2].title =
+currentLang === 'ar'
+? 'التأمينات'
+: 'Insurance';
+
+if(navBtns[3])
+navBtns[3].title =
+currentLang === 'ar'
+? 'الدردشة'
+: 'Chat';
+
+if(navBtns[4])
+navBtns[4].title =
+currentLang === 'ar'
+? 'اتصال'
+: 'Call';
+
+/* ===== تغيير اتجاه الصفحة ===== */
+
+document.body.style.direction =
+currentLang === 'ar'
+? 'rtl'
+: 'ltr';
+
+/* ===== اتجاه الشات ===== */
+
+chatMessages.style.direction =
+currentLang === 'ar'
+? 'rtl'
+: 'ltr';
+
+/* ===== إعادة رسم الخدمات ===== */
+
+renderServices();
+
+}
+function toggleLang(){
+
+    currentLang =
+    currentLang === 'ar'
+    ? 'en'
+    : 'ar';
+
+    localStorage.setItem(
+        'savedLang',
+        currentLang
+    );
+
+    applyTranslations();
+}
+
+function renderServices(){
+
+    servicesBox.innerHTML = '';
+
+    service.innerHTML = '';
+
+    services.forEach(item=>{
+
+        const text =
+        currentLang === 'ar'
+        ? item.ar
+        : item.en;
+
+        servicesBox.innerHTML += `
+        <div class="srv"
+        onclick="quickServiceOrder('${text}')">
+            ${text}
+        </div>
+        `;
+
+        service.innerHTML += `
+        <option>${text}</option>
+        `;
+    });
+
+
+}
+
+currentLang =
+localStorage.getItem('savedLang')
+|| 'ar';
+
+applyTranslations();
+
+navigator.geolocation.getCurrentPosition(
+
+async (p)=>{
+
+const lat = p.coords.latitude;
+const lon = p.coords.longitude;
+
+try{
+
+const res = await fetch(
+`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+);
+
+const data = await res.json();
+
+const address =
+data.display_name ||
+`${lat},${lon}`;
+
+locationText.innerText =
+`📍 ${address}`;
+
+window.currentCoords = {
+lat: lat,
+lon: lon
+};
+
+}catch(err){
+
+locationText.innerText =
+`📍 ${lat},${lon}`;
+
+}
+
+},
+
+()=>{
+
+locationText.innerText =
+t('locationError');
+
+},
+
+{
+enableHighAccuracy:true,
+timeout:10000,
+maximumAge:0
+}
+
+);
+
+function toggleChat(){
+
+const opened =
+chatBox.style.display === 'flex';
+
+chatBox.style.display =
+opened ? 'none' : 'flex';
+
+if(!opened){
+
+unread = 0;
+
+chatBadge.innerText = 0;
+}
+}
+
+function saveChat(){
+
+const messages = [];
+
+document
+.querySelectorAll('.msg')
+.forEach(msg=>{
+
+messages.push({
+html:msg.innerHTML,
+class:msg.className
+});
+
+});
+
+localStorage.setItem(
+'savedChatMessages',
+JSON.stringify(messages)
+);
+
+    if(orderId){
+
+        localStorage.setItem(
+            'savedOrderId',
+            orderId
+        );
+    }
+}
+
+function loadSavedChat(){
+
+    const saved =
+    localStorage.getItem(
+        'savedChatMessages'
+    );
+
+    const savedOrder =
+    localStorage.getItem(
+        'savedOrderId'
+    );
+
+if(saved){
+
+    try{
+
+        const messages =
+        JSON.parse(saved);
+
+        chatMessages.innerHTML = '';
+
+        messages.forEach(m=>{
+
+            const div =
+            document.createElement('div');
+
+            div.className = m.class;
+
+            div.innerHTML = m.html;
+
+            chatMessages.appendChild(div);
+
+        });
+
+    }catch(err){
+
+        console.warn(
+        'Old chat format removed'
+        );
+
+        localStorage.removeItem(
+        'savedChatMessages'
+        );
+    }
+
+    chatMessages.scrollTop =
+    chatMessages.scrollHeight;
+}    if(savedOrder){
+
+        orderId = savedOrder;
+
+        socket.emit('joinOrderRoom',{
+            orderId
+        });
+
+        orderStatusBox.style.display =
+        'block';
+    }
+}
+
+function appendMessage(
+sender,
+text,
+type='text',
+msgId=''
+){
+
+if(!text) return;
+
+let safeText = String(text)
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;');
+
+const safeUrl = encodeURI(text);
+
+let html = safeText;
+
+if(type === 'image'){
+
+html = `
+<div style="
+display:flex;
+flex-direction:column;
+gap:6px;
+">
+
+<img src="${safeUrl}"
+onerror="
+this.src='https://via.placeholder.com/400x250?text=Image+Not+Found'
+">
+
+<a href="${safeUrl}"
+download
+target="_blank"
+class="download-btn">
+🖼️ ${t('downloadImage')}
+</a>
+
+</div>
+`;
+}
+
+else if(type === 'audio'){
+
+html = `
+<div style="
+display:flex;
+flex-direction:column;
+gap:6px;
+">
+
+<audio controls>
+
+<source src="${safeUrl}" type="audio/mpeg">
+
+</audio>
+
+<a href="${safeUrl}"
+download
+target="_blank"
+class="download-btn">
+🎤 ${t('downloadAudio')}
+</a>
+
+</div>
+`;
+}
+
+else if(type === 'file'){
+
+html = `
+<a href="${safeUrl}"
+download
+target="_blank"
+class="download-btn">
+📎 ${t('downloadFile')}
+</a>
+`;
+}
+
+/* ===== الوقت ===== */
+
+const now = new Date();
+
+const time = now.toLocaleTimeString(
+currentLang === 'ar' ? 'ar-EG' : 'en-US',
+{
+hour:'2-digit',
+minute:'2-digit'
+}
+);
+
+const date = now.toLocaleDateString(
+currentLang === 'ar' ? 'ar-EG' : 'en-US'
+);
+
+/* ===== ايموجي ===== */
+
+let emoji = '💬';
+
+if(type === 'image') emoji = '🖼️';
+else if(type === 'audio') emoji = '🎤';
+else if(type === 'file') emoji = '📎';
+
+const div = document.createElement('div');
+div.dataset.id = msgId || '';
+div.className = `msg ${sender}`;
+
+div.innerHTML = `
+<div style="
+display:flex;
+align-items:flex-end;
+gap:8px;
+">
+
+${sender==='admin'
+? '<div style="font-size:26px">🧑‍💼</div>'
+: ''}
+
+<div style="flex:1">
+
+<div>${emoji} ${html}</div>
+
+<div class="msg-time">
+🕒 ${time} | 📅 ${date}
+</div>
+
+</div>
+
+${sender==='client'
+? '<div style="font-size:26px">👤</div>'
+: ''}
+
+</div>
+`;
+chatMessages.appendChild(div);
+
+chatMessages.scrollTop =
+chatMessages.scrollHeight;
+
+saveChat();
+}
+
+function sendMsg(){
+if(window.sendingMsg) return;
+
+window.sendingMsg = true;
+
+setTimeout(()=>{
+
+window.sendingMsg = false;
+
+},700);
+    if(!chatInput.value.trim() || !orderId)
+    return;
+
+    socket.emit('sendMessage',{
+
+        orderId,
+
+        sender:'client',
+
+        message:chatInput.value,
+
+        type:'text'
+
+    });
+
+
+    chatInput.value='';
+}
+
+function sendTyping(){
+
+    if(orderId){
+
+        socket.emit('typing',{
+
+            orderId,
+
+            text:'typing...'
+
+        });
+    }
+}
+
+async function uploadChatFile(){
+
+    const file = chatFile.files[0];
+    if(!file || !orderId) return;
+
+if(file.size > 20 * 1024 * 1024){
+
+    alert('الملف كبير جدا');
+
+    return;
+}
+    const fd = new FormData();
+    fd.append('file',file);
+    fd.append('orderId',orderId);
+    fd.append('sender','client');
+
+    const res = await fetch('/api/chat-upload',{
+        method:'POST',
+        body:fd
+    });
+
+    const data = await res.json();
+
+if(data.success){
+
+    socket.emit('sendMessage',{
+
+        orderId,
+
+        sender:'client',
+
+        message:data.url,
+
+        type:data.type
+    });
+
+    chatFile.value = '';
+}
+    // 🔊 صوت الملف
+    playSound('fileSound');
+}
+
+async function sendOrder(){
+/* ===== التحقق من البيانات المطلوبة ===== */
+
+if(!phone.value.trim()){
+
+alert(
+currentLang === 'ar'
+? 'يرجى إدخال رقم الهاتف'
+: 'Please enter phone number'
+);
+
+phone.focus();
+
+return;
+}
+
+if(!service.value){
+
+alert(
+currentLang === 'ar'
+? 'يرجى اختيار الخدمة'
+: 'Please select a service'
+);
+
+service.focus();
+
+return;
+}
+
+if(!problem.value.trim()){
+
+alert(
+currentLang === 'ar'
+? 'يرجى كتابة وصف المشكلة'
+: 'Please describe the problem'
+);
+
+problem.focus();
+
+return;
+}
+
+if(
+locationText.innerText.includes('تعذر')
+||
+locationText.innerText.includes('unavailable')
+){
+
+alert(
+currentLang === 'ar'
+? 'يرجى تفعيل الموقع'
+: 'Please enable location'
+);
+
+return;
+}
+const submitBtn =
+document.querySelector('.submit-order-btn');
+
+submitBtn.disabled = true;
+submitBtn.innerHTML = `
+<div class="loader"></div>
+`;
+
+    if(window.sendingOrder) return;
+    window.sendingOrder = true;
+
+    const fd = new FormData();
+
+    fd.append('phone', phone.value);
+    fd.append('service', service.value);
+    fd.append('problem', problem.value);
+    fd.append('location', locationText.innerText);
+
+if(window.currentCoords){
+
+fd.append(
+'latitude',
+window.currentCoords.lat
+);
+
+fd.append(
+'longitude',
+window.currentCoords.lon
+);
+
+}
+
+    // 🔥 إضافة الصور
+    if(frontImg.files[0]) fd.append('frontImg', frontImg.files[0]);
+    if(backImg.files[0]) fd.append('backImg', backImg.files[0]);
+    if(rightImg.files[0]) fd.append('rightImg', rightImg.files[0]);
+    if(leftImg.files[0]) fd.append('leftImg', leftImg.files[0]);
+
+    // 🔥 الملكية
+    if(ownershipFrontImg.files[0]) fd.append('ownershipFrontImg', ownershipFrontImg.files[0]);
+    if(ownershipBackImg.files[0]) fd.append('ownershipBackImg', ownershipBackImg.files[0]);
+
+    // 🔥 التأمين (صورة أو PDF)
+    if(insuranceImg.files[0]) fd.append('insuranceImg', insuranceImg.files[0]);
+
+try{
+
+const res = await fetch('/api/order',{        method:'POST',
+        body:fd
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        orderId = data.orderId;
+        localStorage.setItem('savedOrderId', orderId);
+
+        socket.emit('joinOrderRoom',{ orderId });
+
+        
+        chatBox.style.display = 'flex';
+
+        appendMessage('admin', t('orderReceived'));
+        playSound('orderSound');
+    }
+}catch(err){
+
+    alert('حدث خطأ في الاتصال');
+
+    console.error(err);
+
+}finally{
+
+    submitBtn.disabled = false;
+
+    submitBtn.innerText =
+    t('sendOrder');
+
+    window.sendingOrder = false;
+}
+
+}
+
+async function toggleRecord(){
+
+try{
+
+if(!isRecording){
+
+const stream =
+await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+recordedChunks = [];
+
+mediaRecorder = new MediaRecorder(stream,{
+mimeType:'audio/webm'
+});
+
+mediaRecorder.ondataavailable = e=>{
+
+if(e.data.size > 0){
+
+recordedChunks.push(e.data);
+
+}
+
+};
+
+mediaRecorder.onstop = ()=>{
+
+recordedBlob = new Blob(
+recordedChunks,
+{ type:'audio/webm' }
+);
+
+if(recordedBlob.size <= 0){
+
+alert('فشل تسجيل الصوت');
+return;
+
+}
+
+const url =
+URL.createObjectURL(recordedBlob);
+
+voicePlayer.src = url;
+
+voicePreview.style.display = 'block';
+
+stream.getTracks().forEach(t=>t.stop());
+
+};
+
+mediaRecorder.start();
+
+isRecording = true;
+
+recordBtn.classList.add('recording');
+
+recordBtn.innerText = '⏹';
+
+}else{
+
+mediaRecorder.stop();
+
+isRecording = false;
+
+recordBtn.classList.remove('recording');
+
+recordBtn.innerText = '🎤';
+
+}
+
+}catch(err){
+
+console.error(err);
+
+alert('تعذر الوصول للمايكروفون');
+
+}
+}
+
+async function sendVoice(){
+
+try{
+
+if(!recordedBlob){
+
+alert('لا يوجد تسجيل صوتي');
+return;
+}
+
+if(!orderId){
+
+alert('يجب إرسال طلب أولاً');
+return;
+}
+
+const fd = new FormData();
+
+fd.append(
+'file',
+recordedBlob,
+`voice_${Date.now()}.webm`
+);
+
+fd.append('orderId',orderId);
+
+fd.append('sender','client');
+
+const res = await fetch(
+'/api/chat-upload',
+{
+method:'POST',
+body:fd
+});
+
+const data = await res.json();
+
+console.log(data);
+
+if(data.success){
+
+socket.emit('sendMessage',{
+
+orderId,
+
+sender:'client',
+
+message:data.url,
+
+type:'audio'
+
+});
+
+playSound('fileSound');
+
+deleteVoice();
+
+}else{
+
+alert('فشل رفع الصوت');
+
+}
+
+}catch(err){
+
+console.error(err);
+
+alert('خطأ أثناء إرسال الصوت');
+
+}
+}
+
+socket.on('newMessage', d => {
+
+if(d.orderId != orderId) return;
+
+const exists =
+Array.from(
+document.querySelectorAll('.msg')
+).some(el=>{
+
+return el.dataset.id === d.id;
+
+});
+
+if(exists) return;
+
+if(
+chatBox.style.display !== 'flex'
+&& d.sender === 'admin'
+){
+
+unread++;
+
+chatBadge.innerText = unread;
+
+}
+
+if(d.sender === 'admin'){
+
+if(d.type === 'text'){
+
+playSound('messageSound');
+
+}else{
+
+playSound('fileSound');
+
+}
+
+}
+
+appendMessage(
+d.sender,
+d.message,
+d.type,
+d.id
+);
+
+});
+
+socket.on('orderStatusUpdate', data => {
+
+    if(data.orderId !== orderId)
+    return;
+
+    orderStatusText.innerText =
+    data.status;
+
+
+    if(data.status === 'جديد'){
+
+        bar.style.width = '33%';
+        bar.style.background = '#facc15';
+
+    }
+
+    else if(
+        data.status === 'جاري التنفيذ'
+    ){
+
+        bar.style.width = '66%';
+        bar.style.background = '#38bdf8';
+
+    }
+
+    else{
+
+        bar.style.width = '100%';
+        bar.style.background = '#22c55e';
+
+    }
+
+});
+
+socket.on('typing', d => {
+
+    if(d.orderId !== orderId)
+    return;
+
+    typingBox.style.display =
+    'block';
+
+    typingBox.innerText =
+    '✍️ يكتب الآن...';
+
+    clearTimeout(
+        window.typingTimer
+    );
+
+    window.typingTimer =
+    setTimeout(()=>{
+
+        typingBox.style.display =
+        'none';
+
+    },1500);
+
+});
+
+loadSavedChat();
+
+function toggleTheme(){
+
+document.body.classList.toggle('light');
+
+localStorage.setItem(
+
+'theme',
+
+document.body.classList.contains('light')
+? 'light'
+: 'dark'
+
+);
+
+}
+
+if(
+localStorage.getItem('theme')
+=== 'light'
+){
+
+document.body.classList.add('light');
+
+}
+
+// ===== Emoji Picker =====
+
+function toggleEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    if (!picker) return;
+
+    picker.style.display =
+        picker.style.display === 'flex'
+        ? 'none'
+        : 'flex';
+}
+
+function insertEmoji(emoji) {
+    const input = document.getElementById('chatInput');
+    if (!input) return;
+
+    input.value += emoji;
+    input.focus();
+}
+
+function deleteVoice(){
+
+recordedBlob = null;
+
+recordedChunks = [];
+
+voicePlayer.src = '';
+
+voicePreview.style.display = 'none';
+
+}
+
+function toggleSection(id){
+
+document
+.querySelectorAll('.section-content')
+.forEach(sec=>{
+
+if(sec.id === id){
+
+sec.classList.toggle('active');
+
+}else{
+
+sec.classList.remove('active');
+
+}
+
+});
+
+window.scrollTo({
+top:350,
+behavior:'smooth'
+});
+
+}
+
+async function quickServiceOrder(serviceName){
+
+    try{
+
+        const statusBox =
+        document.getElementById(
+        'quickOrderStatus'
+        );
+
+        statusBox.innerText =
+        '⏳ جاري إرسال الطلب...';
+
+        const payload = {
+
+            phone:
+            phone.value || '',
+
+            service:
+            serviceName,
+
+            problem:
+            problem.value || '',
+
+            location:
+            locationText.innerText || '',
+
+            sender:'client'
+
+        };
+
+        socket.emit(
+            'createQuickOrder',
+            payload
+        );
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById(
+        'quickOrderStatus'
+        ).innerText =
+        '❌ فشل إرسال الطلب';
+
+    }
+
+}
+
+
+/* ===== Auto Save Form ===== */
+
+[
+phone,
+problem
+].forEach(el=>{
+
+el.addEventListener('input',()=>{
+
+localStorage.setItem(
+el.id,
+el.value
+);
+
+});
+
+el.value =
+localStorage.getItem(el.id)
+|| '';
+
+});
+
+</script>
+<div class="bottom-nav">
+
+<button onclick="
+window.scrollTo({
+top:0,
+behavior:'smooth'
+})
+">
+🏠
+</button>
+
+<button onclick="
+document.getElementById('service')
+.scrollIntoView({
+behavior:'smooth'
+})
+">
+🛠️
+</button>
+
+<button onclick="
+ document.querySelectorAll('.gold-box')[1]
+ .scrollIntoView({ behavior:'smooth'
+ })
+ ">
+ 🛡️
+ </button>
+
+<button onclick="toggleChat()">
+💬
+</button>
+
+<button onclick="
+window.open(
+'https://wa.me/201021259316'
+)
+">
+📞
+</button>
+
+</div>
+</body>
+</html>

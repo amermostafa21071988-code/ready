@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة الإدارة</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+body{
+    margin:0;
+    background:#0f172a;
+    color:#fff;
+    font-family:tahoma;
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:320px;
+    background:#111827;
+    overflow:auto;
+    border-left:2px solid #d4af37;
+}
+
+.order{
+    padding:15px;
+    border-bottom:1px solid #333;
+    cursor:pointer;
+}
+
+.order:hover{
+    background:#1f2937;
+}
+
+.active{
+    background:#374151;
+}
+
+.new-order{
+    animation:goldBlink 1s infinite;
+}
+
+@keyframes goldBlink{
+    0%{box-shadow:0 0 5px #d4af37}
+    50%{box-shadow:0 0 18px #ffd700}
+    100%{box-shadow:0 0 5px #d4af37}
+}
+
+.unread{
+    background:red;
+    color:#fff;
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.chat-area{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.header{
+    padding:15px;
+    background:#111827;
+    border-bottom:2px solid #d4af37;
+}
+
+#clientLocation{
+    padding:10px;
+    color:#d4af37;
+    font-size:14px;
+}
+
+.top-buttons{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+    align-items:center;
+}
+
+#statusSelect{
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#d4af37;
+    font-weight:bold;
+}
+
+.messages{
+    flex:1;
+    padding:20px;
+    overflow:auto;
+    background:#f8fafc;
+    color:#000;
+}
+
+.msg{
+    max-width:75%;
+    padding:12px;
+    border-radius:14px;
+    margin:8px 0;
+    word-break:break-word;
+}
+
+.client{
+    background:#dbeafe;
+    margin-right:auto;
+}
+
+.admin{
+    background:#dcfce7;
+    margin-left:auto;
+}
+
+.controls{
+    display:flex;
+    gap:8px;
+    padding:12px;
+    background:#fff;
+    align-items:center;
+    position:relative;
+}
+
+.controls input{
+    flex:1;
+    padding:10px;
+}
+
+button{
+    background:#d4af37;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+img{
+    max-width:220px;
+    border-radius:12px;
+}
+
+audio{
+    width:220px;
+}
+
+#recordBtn.recording{
+    background:#ef4444;
+    color:#fff;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.08)}
+    100%{transform:scale(1)}
+}
+
+iframe{
+    width:100%;
+    height:220px;
+    border:none;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+/* ===== Emoji Picker ===== */
+
+.emoji-picker{
+    position:absolute;
+    bottom:70px;
+    right:10px;
+    background:#fff;
+    border:2px solid #d4af37;
+    border-radius:15px;
+    padding:10px;
+    width:260px;
+    max-height:220px;
+    overflow:auto;
+    display:none;
+    box-shadow:0 0 15px rgba(0,0,0,.3);
+    z-index:999;
+}
+
+.emoji-picker span{
+    font-size:26px;
+    cursor:pointer;
+    margin:5px;
+    display:inline-block;
+    transition:.2s;
+}
+
+.emoji-picker span:hover{
+    transform:scale(1.2);
+}
+
+#emojiBtn{
+    font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar" id="ordersList"></div>
+
+<div class="chat-area">
+
+    <div class="header">
+
+        <div id="orderTitle">
+            اختر طلب
+        </div>
+
+        <div id="clientLocation">
+            📍 موقع العميل سيظهر هنا
+        </div>
+
+        <div class="top-buttons">
+
+            <button onclick="openClientMap()">
+                📍 فتح الموقع
+            </button>
+
+            <button onclick="exportZip()">
+                📦 تصدير ZIP
+            </button>
+
+            <select id="statusSelect" onchange="changeStatus()">
+                <option value="جديد">جديد</option>
+                <option value="جاري التنفيذ">جاري التنفيذ</option>
+                <option value="مكتمل">مكتمل</option>
+            </select>
+
+        </div>
+
+        <div id="mapBox"></div>
+
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="controls">
+
+        <input id="msgInput" placeholder="اكتب رسالة">
+
+        <!-- زر الإيموجي -->
+        <button id="emojiBtn" onclick="toggleEmojiPicker()">
+            😀
+        </button>
+
+        <button onclick="sendMsg()">
+            إرسال
+        </button>
+
+        <input
+            type="file"
+            id="fileInput"
+            hidden
+            onchange="sendFile()"
+        >
+
+        <button onclick="fileInput.click()">
+            📎
+        </button>
+
+        <button id="recordBtn" onclick="toggleRecord()">
+            🎤
+        </button>
+
+        <!-- ===== Emoji Picker ===== -->
+
+        <div class="emoji-picker" id="emojiPicker">
+
+            <span onclick="insertEmoji('😀')">😀</span>
+            <span onclick="insertEmoji('😁')">😁</span>
+            <span onclick="insertEmoji('😂')">😂</span>
+            <span onclick="insertEmoji('🤣')">🤣</span>
+            <span onclick="insertEmoji('😊')">😊</span>
+            <span onclick="insertEmoji('😍')">😍</span>
+            <span onclick="insertEmoji('😘')">😘</span>
+            <span onclick="insertEmoji('😎')">😎</span>
+            <span onclick="insertEmoji('😭')">😭</span>
+            <span onclick="insertEmoji('😡')">😡</span>
+            <span onclick="insertEmoji('👍')">👍</span>
+            <span onclick="insertEmoji('👎')">👎</span>
+            <span onclick="insertEmoji('👏')">👏</span>
+            <span onclick="insertEmoji('🙏')">🙏</span>
+            <span onclick="insertEmoji('🔥')">🔥</span>
+            <span onclick="insertEmoji('❤️')">❤️</span>
+            <span onclick="insertEmoji('💔')">💔</span>
+            <span onclick="insertEmoji('🎉')">🎉</span>
+            <span onclick="insertEmoji('🚗')">🚗</span>
+            <span onclick="insertEmoji('🛠️')">🛠️</span>
+            <span onclick="insertEmoji('📞')">📞</span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<audio id="notifySound" preload="auto">
+    <source src="/sounds/notify.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const socket = io();
+
+let orders = [];
+let currentOrderId = null;
+let previousFirstId = null;
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+/* ===== Emoji Functions ===== */
+
+function toggleEmojiPicker(){
+
+    emojiPicker.style.display =
+        emojiPicker.style.display === 'block'
+        ? 'none'
+        : 'block';
+}
+
+function insertEmoji(emoji){
+
+    msgInput.value += emoji;
+
+    msgInput.focus();
+}
+
+// إغلاق القائمة عند الضغط خارجها
+document.addEventListener('click',function(e){
+
+    if(
+        !emojiPicker.contains(e.target) &&
+        e.target.id !== 'emojiBtn'
+    ){
+        emojiPicker.style.display = 'none';
+    }
+});
+
+function cleanPath(str=''){
+
+    return String(str)
+        .replace(/%22/g,'')
+        .replace(/^"+|"+$/g,'')
+        .replace(/^'+|'+$/g,'')
+        .replace(/\/+$/,'');
+}
+
+function playNotify(){
+
+    notifySound.currentTime = 0;
+
+    notifySound.play().catch(()=>{});
+}
+
+function renderOrders(){
+
+    ordersList.innerHTML='';
+
+    orders.forEach((order,index)=>{
+
+        const div = document.createElement('div');
+
+        div.className =
+            'order' +
+            (order.id===currentOrderId ? ' active' : '');
+
+        if(
+            index===0 &&
+            previousFirstId &&
+            previousFirstId!==order.id
+        ){
+            div.classList.add('new-order');
+        }
+
+        div.onclick = ()=>openOrder(order.id);
+
+        div.innerHTML = `
+            <div>
+                <b>${order.service}</b>
+            </div>
+
+            <div>${order.phone}</div>
+
+            <div>${order.createdAt}</div>
+
+            <div>
+                الحالة:
+                ${order.status || 'جديد'}
+            </div>
+
+            ${
+                order.unread
+                ?
+                `<span class="unread">
+                    ${order.unread}
+                </span>`
+                :
+                ''
+            }
+        `;
+
+        ordersList.appendChild(div);
+    });
+
+    previousFirstId =
+        orders.length
+        ?
+        orders[0].id
+        :
+        null;
+}
+
+function renderMessages(order){
+
+    messages.innerHTML='';
+
+    // ===== ملفات الطلب =====
+
+    order.files.forEach(file=>{
+
+        const cleanUrl =
+            cleanPath(file.url);
+
+        let html='';
+
+        // صور
+        if(
+            cleanUrl.match(
+                /\.(jpg|jpeg|png|gif|webp)$/i
+            )
+        ){
+
+            html =
+                `<img src="${cleanUrl}">`;
+
+        }
+
+        // ملفات
+        else{
+
+            html = `
+                <a
+                    href="${cleanUrl}"
+                    target="_blank"
+                    style="
+                        color:#2563eb;
+                        text-decoration:none;
+                        font-weight:bold;
+                    "
+                >
+                    📎 ${file.label}
+                </a>
+            `;
+        }
+
+        messages.innerHTML += `
+            <div class="msg client">
+                ${file.label}<br>
+                ${html}
+            </div>
+        `;
+    });
+
+    // ===== الرسائل =====
+
+    order.messages.forEach(msg=>{
+
+        const cleanMsg =
+            cleanPath(msg.message);
+
+        let html = cleanMsg;
+
+        // ===== صورة =====
+
+        if(msg.type==='image'){
+
+            html =
+                `<img src="${cleanMsg}">`;
+        }
+
+        // ===== صوت =====
+
+        else if(msg.type==='audio'){
+
+            html = `
+                🎤 رسالة صوتية<br>
+
+                <audio
+                    controls
+                    src="${cleanMsg}"
+                ></audio>
+            `;
+        }
+
+        // ===== ملف =====
+
+        else if(
+            msg.type==='file' ||
+            msg.type==='pdf'
+        ){
+
+            html = `
+                <a
+                    href="${cleanMsg}"
+                    target="_blank"
+                    style="
+                        color:#2563eb;
+                        text-decoration:none;
+                        font-weight:bold;
+                    "
+                >
+                    📎 فتح الملف
+                </a>
+            `;
+        }
+
+        // ===== تحويل الإحداثيات إلى عنوان =====
+
+        else{
+
+            const coordMatch =
+                cleanMsg.match(
+                    /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/
+                );
+
+            if(coordMatch){
+
+                const lat =
+                    coordMatch[1];
+
+                const lng =
+                    coordMatch[2];
+
+                const locationId =
+                    'loc_' +
+                    Date.now() +
+                    Math.floor(
+                        Math.random()*99999
+                    );
+
+                html = `
+                    <div
+                        id="${locationId}"
+                        style="
+                            background:#fff7ed;
+                            padding:10px;
+                            border-radius:12px;
+                            border:1px solid #fdba74;
+                            color:#9a3412;
+                            font-weight:bold;
+                        "
+                    >
+                        ⏳ جاري تحميل العنوان...
+                    </div>
+                `;
+
+                setTimeout(()=>{
+
+                    const el =
+                        document.getElementById(
+                            locationId
+                        );
+
+                    if(!el) return;
+
+                    fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
+                    )
+                    .then(r=>r.json())
+                    .then(data=>{
+
+                        const address =
+                            data.display_name ||
+                            `${lat}, ${lng}`;
+
+                        el.innerHTML = `
+                            📍 ${address}
+
+                            <br><br>
+
+                            <a
+                                href="https://www.google.com/maps?q=${lat},${lng}"
+                                target="_blank"
+                                style="
+                                    color:#2563eb;
+                                    font-size:14px;
+                                    text-decoration:none;
+                                "
+                            >
+                                فتح الموقع على الخريطة
+                            </a>
+                        `;
+
+                    })
+                    .catch(()=>{
+
+                        el.innerHTML =
+                            `📍 ${lat}, ${lng}`;
+                    });
+
+                },100);
+            }
+        }
+
+        messages.innerHTML += `
+            <div class="msg ${msg.sender}">
+                ${html}
+            </div>
+        `;
+    });
+
+    messages.scrollTop =
+        messages.scrollHeight;
+}
+
+function openOrder(id){
+
+    currentOrderId = id;
+
+    const order =
+        orders.find(o=>o.id===id);
+
+    if(!order) return;
+
+    orderTitle.innerText =
+        `طلب #${order.id}`;
+
+    clientLocation.innerText = '⏳ جاري تحويل الإحداثيات...';
+
+    if(
+        order.location &&
+        order.location.includes(',')
+    ){
+
+        const parts =
+            order.location.split(',');
+
+        if(parts.length >= 2){
+
+            const lat = parts[0].trim();
+            const lng = parts[1].trim();
+
+            fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
+            )
+            .then(r=>r.json())
+            .then(data=>{
+
+                if(data.display_name){
+
+                    clientLocation.innerText =
+                        '📍 ' + data.display_name;
+
+                }else{
+
+                    clientLocation.innerText =
+                        '📍 ' + order.location;
+                }
+
+            })
+            .catch(()=>{
+
+                clientLocation.innerText =
+                    '📍 ' + order.location;
+            });
+
+        }
+
+    }else{
+
+        clientLocation.innerText =
+            '📍 ' +
+            (order.location || 'غير متوفر');
+    }
+
+    statusSelect.value =
+        order.status || 'جديد';
+
+    renderOrders();
+
+    renderMessages(order);
+
+    showMap(order.location);
+
+    socket.emit(
+        'joinOrderRoom',
+        {orderId:id}
+    );
+
+    socket.emit(
+        'messageRead',
+        {orderId:id}
+    );
+}
+
+function changeStatus(){
+
+    if(!currentOrderId) return;
+
+    socket.emit('updateStatus',{
+
+        orderId: currentOrderId,
+
+        status: statusSelect.value
+    });
+}
+
+function showMap(location){
+
+    if(!location){
+
+        mapBox.innerHTML='';
+
+        return;
+    }
+
+    if(location.includes(',')){
+
+        const parts =
+            location.split(',');
+
+        if(parts.length >= 2){
+
+            const lat =
+                parts[0].trim();
+
+            const lng =
+                parts[1].trim();
+
+            mapBox.innerHTML = `
+                <iframe
+                    src="https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed">
+                </iframe>
+            `;
+
+            fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
+            )
+            .then(r=>r.json())
+            .then(data=>{
+
+                if(data.display_name){
+
+                    clientLocation.innerText =
+                        '📍 ' +
+                        data.display_name;
+                }
+
+            })
+            .catch(()=>{});
+        }
+
+    }else{
+
+        clientLocation.innerText =
+            '📍 ' + location;
+    }
+}
+
+function openClientMap(){
+
+    if(!currentOrderId) return;
+
+    const order =
+        orders.find(
+            o=>o.id===currentOrderId
+        );
+
+    if(!order || !order.location) return;
+
+    window.open(
+        `https://www.google.com/maps?q=${encodeURIComponent(order.location)}`,
+        '_blank'
+    );
+}
+
+function exportZip(){
+
+    if(!currentOrderId) return;
+
+    window.open(
+        `/export-order/${currentOrderId}`,
+        '_blank'
+    );
+}
+
+function sendMsg(){
+
+    if(
+        !msgInput.value.trim() ||
+        !currentOrderId
+    ) return;
+
+    socket.emit('sendMessage',{
+
+        orderId:currentOrderId,
+
+        sender:'admin',
+
+        message:msgInput.value,
+
+        type:'text'
+    });
+
+    msgInput.value='';
+}
+
+async function sendFile(){
+
+    const file =
+        fileInput.files[0];
+
+    if(!file || !currentOrderId) return;
+
+    const fd = new FormData();
+
+    fd.append('file',file);
+
+    fd.append(
+        'orderId',
+        currentOrderId
+    );
+
+    fd.append('sender','admin');
+
+    await fetch('/api/chat-upload',{
+
+        method:'POST',
+
+        body:fd
+    });
+
+    fileInput.value='';
+}
+
+async function toggleRecord(){
+
+    if(!currentOrderId) return;
+
+    if(!isRecording){
+
+        try{
+
+            const stream =
+                await navigator
+                .mediaDevices
+                .getUserMedia({
+                    audio:true
+                });
+
+            recordedChunks = [];
+
+            mediaRecorder =
+                new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = e=>{
+
+                if(e.data.size > 0){
+
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = async ()=>{
+
+                const blob =
+                    new Blob(
+                        recordedChunks,
+                        {
+                            type:'audio/webm'
+                        }
+                    );
+
+                const file =
+                    new File(
+                        [blob],
+                        `voice_${Date.now()}.webm`,
+                        {
+                            type:'audio/webm'
+                        }
+                    );
+
+                const fd =
+                    new FormData();
+
+                fd.append('file',file);
+
+                fd.append(
+                    'orderId',
+                    currentOrderId
+                );
+
+                fd.append(
+                    'sender',
+                    'admin'
+                );
+
+                await fetch(
+                    '/api/chat-upload',
+                    {
+                        method:'POST',
+                        body:fd
+                    }
+                );
+
+                stream
+                    .getTracks()
+                    .forEach(
+                        track=>track.stop()
+                    );
+            };
+
+            mediaRecorder.start();
+
+            isRecording = true;
+
+            recordBtn
+                .classList
+                .add('recording');
+
+            recordBtn.innerText =
+                '⏹ إيقاف';
+
+        }catch(err){
+
+            console.error(err);
+
+            alert(
+                'فشل تشغيل المايك'
+            );
+        }
+
+    }else{
+
+        mediaRecorder.stop();
+
+        isRecording = false;
+
+        recordBtn
+            .classList
+            .remove('recording');
+
+        recordBtn.innerText='🎤';
+    }
+}
+
+socket.on('ordersUpdated',data=>{
+
+    orders = data;
+
+    renderOrders();
+
+    if(currentOrderId){
+
+        const order =
+            orders.find(
+                o=>o.id===currentOrderId
+            );
+
+        if(order){
+
+            renderMessages(order);
+
+            statusSelect.value =
+                order.status || 'جديد';
+        }
+    }
+});
+
+socket.on('statusUpdated',data=>{
+
+    const order =
+        orders.find(
+            o=>o.id===data.orderId
+        );
+
+    if(order){
+
+        order.status = data.status;
+
+        renderOrders();
+    }
+});
+
+socket.on('newMessage',data=>{
+
+    if(data.sender==='client'){
+
+        playNotify();
+    }
+
+    if(currentOrderId===data.orderId){
+
+        const order =
+            orders.find(
+                o=>o.id===currentOrderId
+            );
+
+        if(order){
+
+            renderMessages(order);
+        }
+    }
+});
+
+fetch('/get-orders')
+.then(r=>r.json())
+.then(data=>{
+
+    orders = data;
+
+    renderOrders();
+});
+
+</script>
+
+</body>
+</html>
